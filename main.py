@@ -70,11 +70,25 @@ class CleaningRobot (Robot):
             print("Please charge and clean the dust compartment of the CleaningRobot.")
     
 class DroneRobot(Robot):
-    max_altitude = 1500
-
     def __init__(self, name, battery):
             super().__init__(name, battery)
-    
+            self.max_altitude = 1500
+
+    def perform_task(self, height):
+        if height < self.max_altitude and self.battery >= 15:
+            print(f"Flying {height}m")
+            self.battery -= 15
+
+        elif height == self.max_altitude and self.battery >= 15:
+            print("Max height")
+
+        elif height < self.max_altitude and self.battery < 15:
+            print("Insufficient battery please charge DroneRobot.")
+
+        else:
+            print("Max height and insufficient battery.")
+        
+            
 
     
 
