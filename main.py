@@ -69,7 +69,7 @@ class CleaningRobot (Robot):
         else:
             print("Please charge and clean the dust compartment of the CleaningRobot.")
     
-class DrobeRobot(Robot):
+class DroneRobot(Robot):
     max_altitude = 1500
 
     def __init__(self, name, battery):
