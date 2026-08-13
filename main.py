@@ -6,6 +6,7 @@ class Robot:
     def __init__ (self, name, battery = 100):
         self.name = name
         self.battery = battery
+        self.battery_usage = 10
         Robot.population_count += 1
 
     @property
@@ -21,12 +22,15 @@ class Robot:
         else:
             self._battery = value
 
+    def use_battery(self, value):
+        self.battery -= value
+    
     def perform_task(self):
-        if self.battery > 0:
+        if self.battery >= self.battery_usage:
             print("Power on..")
-            self.battery -= 10
+            self.use_battery(self.battery_usage)
         else:
-            print("Battery insufficient please charge the Robot.")
+            raise InsufficientValueError(self.name, self.battery, self.battery_usage)
         return
 
     def __str__(self):
@@ -35,11 +39,12 @@ class Robot:
     def __repr__(self):
         return f"{self.__class__.__name__}({self.name!r}, {self.battery!r})"
 
-class CleaningRobot (Robot):
+class CleaningRobot(Robot):
     
-    def __init__(self, name, battery):
+    def __init__(self, name, battery = 100):
         super().__init__(name, battery)
         self.dust_capacity = 0
+        self.battery_usage = 10
 
     @property
     def dust_capacity(self):
@@ -55,40 +60,43 @@ class CleaningRobot (Robot):
                 self._dust_capacity = value
             
     def perform_task(self):
-        if self.dust_capacity < 100 and self.battery >= 10:
+        if self.dust_capacity < 100 and self.battery >= self.battery_usage:
             print("Cleaning the area..")
             self.dust_capacity += 10
-            self.battery -= 10
+            self.use_battery(self.battery_usage)
 
-        elif self.dust_capacity == 100 and self.battery >= 10:
+        elif self.dust_capacity == 100 and self.battery >= self.battery_usage:
             print("Please clear the dust compartment of the CleaningRobot.")
 
-        elif self.dust_capacity < 100 and self.battery < 10:
-            print("Please charge the CleaningRobot.")
-
+        elif self.dust_capacity < 100 and self.battery < self.battery_usage:
+            raise InsufficientValueError(self.name, self.battery, self.battery_usage)
         else:
             print("Please charge and clean the dust compartment of the CleaningRobot.")
     
 class DroneRobot(Robot):
-    def __init__(self, name, battery):
+    def __init__(self, name, battery = 100):
             super().__init__(name, battery)
             self.max_altitude = 1500
+            self.battery_usage = 15
 
     def perform_task(self, height):
-        if height < self.max_altitude and self.battery >= 15:
-            print(f"Flying {height}m")
-            self.battery -= 15
-
-        elif height == self.max_altitude and self.battery >= 15:
-            print("Max height")
-
-        elif height < self.max_altitude and self.battery < 15:
-            print("Insufficient battery please charge DroneRobot.")
-
+        if height > self.max_altitude:
+            print("Maximum altitude is 1500m.")
+        elif self.battery < self.battery_usage:
+            raise InsufficientValueError(self.name, self.battery, self.battery_usage)
         else:
-            print("Max height and insufficient battery.")
-        
-            
+            print(f"Flying {height}m")
+            self.use_battery(self.battery_usage)
+
+class InsufficientValueError(Exception):
+    def __init__(self, name, battery, use_battery):
+        super().__init__(f"{name} needs {use_battery}% battery for this task but only has {battery}%.")
+        self.battery = battery
+        self.use_battery = use_battery
+
+def fleet_reports(fleet):
+    for robots in fleet:
+        print(robots)
 
     
 
