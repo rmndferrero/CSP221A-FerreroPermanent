@@ -23,7 +23,10 @@ class Robot:
             self._battery = value
 
     def use_battery(self, value):
-        self.battery -= value
+        if value < 0:
+            value == 0
+        else:
+            self.battery -= value
     
     def perform_task(self):
         if self.battery >= self.battery_usage:
@@ -44,7 +47,7 @@ class CleaningRobot(Robot):
     def __init__(self, name, battery = 100):
         super().__init__(name, battery)
         self.dust_capacity = 0
-        self.battery_usage = 10
+        self.battery_usage = 20
 
     @property
     def dust_capacity(self):
@@ -94,9 +97,25 @@ class InsufficientValueError(Exception):
         self.battery = battery
         self.use_battery = use_battery
 
+def run_task_safely( robot , **kwargs):
+    try:
+        task_result = robot.perform_task(**kwargs)
+
+    except InsufficientValueError as error:
+        print(f"{error}")
+
+    else:
+        print(task_result)
+
+    finally: 
+        print(f"Current battery: {robot.battery}")
+
 def fleet_reports(fleet):
     for robots in fleet:
         print(robots)
+
+drone = DroneRobot("SB", 10)
+run_task_safely(drone, height = 500)
 
     
 
