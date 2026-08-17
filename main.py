@@ -1,21 +1,3 @@
-import logging 
-from functools import wraps
-
-logging.basicConfig(level=logging.INFO)
-
-def log_action(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        logging.info(f"Calling {func.__name__}")
-        
-        result = func(*args, **kwargs)
-        
-        logging.info(f"Finished {func.__name__}")
-        return result
-
-    return wrapper
-
-
 class Robot:
     manufacturer = "ReymondRobotics"
     
@@ -45,10 +27,8 @@ class Robot:
             value == 0
         else:
             self.battery -= value
-
-    @log_action
+    
     def perform_task(self):
-        """Powering the Robot"""
         if self.battery >= self.battery_usage:
             print("Power on..")
             self.use_battery(self.battery_usage)
@@ -81,8 +61,7 @@ class CleaningRobot(Robot):
                 self._dust_capacity = 100
             else:
                 self._dust_capacity = value
-
-    @log_action
+            
     def perform_task(self):
         if self.dust_capacity < 100 and self.battery >= self.battery_usage:
             print("Cleaning the area..")
@@ -103,15 +82,20 @@ class DroneRobot(Robot):
             self.max_altitude = 1500
             self.battery_usage = 15
 
-    @log_action
     def perform_task(self, height):
         if height > self.max_altitude:
-            print("Maximum altitude is 1500m, lower the flight height.")
+            print("Maximum altitude is 1500m.")
         elif self.battery < self.battery_usage:
             raise InsufficientValueError(self.name, self.battery, self.battery_usage)
         else:
             print(f"Flying {height}m")
             self.use_battery(self.battery_usage)
+
+class InsufficientValueError(Exception):
+    def __init__(self, name, battery, use_battery):
+        super().__init__(f"{name} needs {use_battery}% battery for this task but only has {battery}%.")
+        self.battery = battery
+        self.use_battery = use_battery
 
 def run_task_safely( robot , **kwargs):
     try:
@@ -130,9 +114,8 @@ def fleet_reports(fleet):
     for robots in fleet:
         print(robots)
 
-
-drone = DroneRobot("SB", 100)
-drone.perform_task(5000)
+drone = DroneRobot("SB", 10)
+run_task_safely(drone, height = 500)
 
     
 
